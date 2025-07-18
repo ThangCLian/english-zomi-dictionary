@@ -5,157 +5,110 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>English - Zomi Dictionary</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
     body {
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f0f4f8;
-      margin: 0;
-      padding: 0;
-    }
-
-    header {
-      background-color: #2a5d9f;
-      color: white;
+      font-family: Arial, sans-serif;
       padding: 20px;
-      text-align: center;
-    }
-
-    main {
-      padding: 20px;
+      background-color: #f4f4f4;
       max-width: 800px;
       margin: auto;
     }
-
     h1 {
-      margin: 0;
+      color: #333;
     }
-
-    .search-box {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 20px;
-    }
-
-    input[type="text"] {
-      padding: 12px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-
-    button {
-      padding: 12px;
-      font-size: 16px;
-      background-color: #2a5d9f;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #1f4780;
-    }
-
-    .result {
-      margin-top: 30px;
-      background-color: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    }
-
-    .result h2 {
-      margin-top: 0;
-    }
-
-    .zomi-translation {
-      margin-top: 10px;
-      background: #eef4fa;
+    input, button {
       padding: 10px;
-      border-left: 4px solid #2a5d9f;
-      border-radius: 6px;
+      font-size: 16px;
+      margin-top: 10px;
     }
-
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    .pos-label {
+      font-weight: bold;
+      color: #444;
+    }
     @media (max-width: 600px) {
-      input[type="text"],
-      button {
+      input, button {
         width: 100%;
       }
     }
   </style>
 </head>
 <body>
-
-  <header>
-    <h1>English - Zomi Dictionary</h1>
-    <p>Powered by dictionaryapi.dev — Translations powered by the community</p>
-  </header>
-
-  <main>
-    <div class="search-box">
-      <input type="text" id="wordInput" placeholder="Enter English word" />
-      <button onclick="lookupWord()">Search</button>
-    </div>
-
-    <div class="result" id="result"></div>
-  </main>
+  <h1>English - Zomi Dictionary</h1>
+  <p>Type an English word to see its Zomi translation.</p>
+  <input type="text" id="wordInput" placeholder="Enter English word">
+  <div class="result" id="result"></div>
 
   <script>
-    const zomiTranslations = {
-      "love": "ngiahna",
-      "friend": "lawm",
-      "peace": "daihna",
-      "food": "ann",
-      "water": "tui",
-      "sun": "ni",
-      "moon": "kha",
-      "school": "sanginn",
-      "home": "inn"
+    const zomiDictionary = {
+      love: {
+        noun: "ngiahna",
+        verb: "ngai hi, it hi"
+      },
+      run: {
+        verb: "tai hi"
+      },
+      happy: {
+        adjective: "nuam, a nuam, lungdam, lungnuam"
+      },
+      quickly: {
+        adverb: "manlangtakin, kinawhlua, kinawh mahmah"
+      },
+      he: {
+        pronoun: "amah, pasal lam genna, mi hing ganhing a pa te gen na"
+      },
+      wow: {
+        interjection: "lamdang sakna, nopsakna, leh natsakna lahna kammal"
+      },
+      under: {
+        preposition: "a nuai ah"
+      },
+      and: {
+        conjunction: "leh, tawh, tua ciangin"
+      }
     };
 
-    async function lookupWord() {
-      const word = document.getElementById("wordInput").value.trim().toLowerCase();
-      const resultDiv = document.getElementById("result");
-      resultDiv.innerHTML = "";
+    function showTranslation() {
+      const word = document.getElementById('wordInput').value.trim().toLowerCase();
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = '';
 
       if (!word) {
-        resultDiv.innerHTML = "<p>Please enter a word.</p>";
+        resultDiv.innerHTML = '<p>Please enter a word.</p>';
         return;
       }
 
-      const url = `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`;
+      const translation = zomiDictionary[word];
 
-      try {
-        const response = await fetch(url);
-        if (!response.ok) throw new Error("Word not found.");
-        const data = await response.json();
-
-        const definitions = data[0].meanings.map(meaning => `
-          <div>
-            <strong>Part of speech:</strong> ${meaning.partOfSpeech}<br>
-            ${meaning.definitions.map(def => `<p><strong>Definition:</strong> ${def.definition}</p>`).join("")}
-          </div>
-        `).join("");
-
-        const zomi = zomiTranslations[word];
-        const zomiHTML = zomi
-          ? `<div class="zomi-translation"><strong>Zomi Translation:</strong> ${zomi}</div>`
-          : `<div class="zomi-translation"><strong>Zomi Translation:</strong> Not available</div>`;
-
-        resultDiv.innerHTML = `
-          <h2>${data[0].word}</h2>
-          ${zomiHTML}
-          ${definitions}
-        `;
-      } catch (error) {
-        resultDiv.innerHTML = `<p>Error: ${error.message}</p>`;
+      if (!translation) {
+        resultDiv.innerHTML = `<p>No Zomi translation found for <strong>${word}</strong>.</p>`;
+        return;
       }
+
+      let output = `<h2>${word}</h2>`;
+      for (const pos in translation) {
+        output += `
+          <div>
+            <p class="pos-label">${pos.charAt(0).toUpperCase() + pos.slice(1)}:</p>
+            <p>${translation[pos]}</p>
+          </div>
+        `;
+      }
+
+      resultDiv.innerHTML = output;
     }
+
+    // Search when Enter key is pressed
+    document.getElementById('wordInput').addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') {
+        showTranslation();
+      }
+    });
   </script>
 </body>
 </html>

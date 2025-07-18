@@ -44,6 +44,16 @@
       bottom: 0;
       width: 100%;
     }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      margin: 10px 0;
+      box-sizing: border-box;
+    }
+    select {
+      padding: 8px;
+      margin: 10px 0;
+    }
   </style>
 </head>
 <body>
@@ -52,48 +62,148 @@
     <p>Translate between English and Zomi (Tedim Chin) Language</p>
   </header>
   <main>
+    <!-- Search Bar -->
+    <input type="text" id="searchBar" onkeyup="searchDictionary()" placeholder="Search for a word...">
+
+    <!-- Parts of Speech Dropdown -->
+    <select id="posFilter" onchange="filterByPOS()">
+      <option value="">All Parts of Speech</option>
+      <option value="Noun">Noun</option>
+      <option value="Verb">Verb</option>
+      <option value="Adjective">Adjective</option>
+      <option value="Adverb">Adverb</option>
+      <option value="Pronoun">Pronoun</option>
+      <option value="Preposition">Preposition</option>
+      <option value="Conjunction">Conjunction</option>
+      <option value="Interjection">Interjection</option>
+    </select>
+
     <h2>English to Zomi</h2>
-    <table>
-      <tr>
-        <th>English</th>
-        <th>Zomi (Tedim Chin)</th>
-      </tr>
-      <tr>
-        <td>Water</td>
-        <td>Tui</td>
-      </tr>
-      <tr>
-        <td>Food</td>
-        <td>Ann</td>
-      </tr>
-      <tr>
-        <td>Love</td>
-        <td>Ngiahna</td>
-      </tr>
+    <table id="englishTable">
+      <thead>
+        <tr>
+          <th>English</th>
+          <th>Zomi (Tedim Chin)</th>
+          <th>Part of Speech</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-pos="Noun">
+          <td>Water</td>
+          <td>Ti</td>
+          <td>Noun</td>
+        </tr>
+        <tr data-pos="Verb">
+          <td>Love</td>
+          <td>Hihnak</td>
+          <td>Verb</td>
+        </tr>
+        <tr data-pos="Adjective">
+          <td>Beautiful</td>
+          <td>Ropui</td>
+          <td>Adjective</td>
+        </tr>
+      </tbody>
     </table>
 
     <h2>Zomi to English</h2>
-    <table>
-      <tr>
-        <th>Zomi (Tedim Chin)</th>
-        <th>English</th>
-      </tr>
-      <tr>
-        <td>Tui</td>
-        <td>Water</td>
-      </tr>
-      <tr>
-        <td>Ann</td>
-        <td>Food</td>
-      </tr>
-      <tr>
-        <td>Ngaihna</td>
-        <td>Love</td>
-      </tr>
+    <table id="zomiTable">
+      <thead>
+        <tr>
+          <th>Zomi (Tedim Chin)</th>
+          <th>English</th>
+          <th>Part of Speech</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-pos="Noun">
+          <td>Ti</td>
+          <td>Water</td>
+          <td>Noun</td>
+        </tr>
+        <tr data-pos="Verb">
+          <td>Hihnak</td>
+          <td>Love</td>
+          <td>Verb</td>
+        </tr>
+        <tr data-pos="Adjective">
+          <td>Ropui</td>
+          <td>Beautiful</td>
+          <td>Adjective</td>
+        </tr>
+      </tbody>
     </table>
   </main>
   <footer>
     &copy; 2025 Zomi Community
   </footer>
+
+  <script>
+    function searchDictionary() {
+      var input, filter, englishTable, zomiTable, trE, trZ, tdE, tdZ, i, txtValue;
+      input = document.getElementById("searchBar");
+      filter = input.value.toUpperCase();
+      englishTable = document.getElementById("englishTable");
+      zomiTable = document.getElementById("zomiTable");
+      trE = englishTable.getElementsByTagName("tr");
+      trZ = zomiTable.getElementsByTagName("tr");
+
+      // Search English to Zomi table
+      for (i = 1; i < trE.length; i++) {
+        tdE = trE[i].getElementsByTagName("td")[0]; // English column
+        if (tdE) {
+          txtValue = tdE.textContent || tdE.innerText;
+          if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            trE[i].style.display = "";
+          } else {
+            trE[i].style.display = "none";
+          }
+        }
+      }
+
+      // Search Zomi to English table
+      for (i = 1; i < trZ.length; i++) {
+        tdZ = trZ[i].getElementsByTagName("td")[0]; // Zomi column
+        if (tdZ) {
+          txtValue = tdZ.textContent || tdZ.innerText;
+          if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            trZ[i].style.display = "";
+          } else {
+            trZ[i].style.display = "none";
+          }
+        }
+      }
+    }
+
+    // Filter by Part of Speech
+    function filterByPOS() {
+      var posFilter, englishTable, zomiTable, trE, trZ, pos, i;
+      posFilter = document.getElementById("posFilter").value;
+      englishTable = document.getElementById("englishTable");
+      zomiTable = document.getElementById("zomiTable");
+      trE = englishTable.getElementsByTagName("tr");
+      trZ = zomiTable.getElementsByTagName("tr");
+
+      // Filter English to Zomi table
+      for (i = 1; i < trE.length; i++) {
+        pos = trE[i].getAttribute("data-pos");
+        if (posFilter === "" || pos === posFilter) {
+          trE[i].style.display = "";
+        } else {
+          trE[i].style.display = "none";
+        }
+      }
+
+      // Filter Zomi to English table
+      for (i = 1; i < trZ.length; i++) {
+        pos = trZ[i].getAttribute("data-pos");
+        if (posFilter === "" || pos === posFilter) {
+          trZ[i].style.display = "";
+        } else {
+          trZ[i].style.display = "none";
+        }
+      }
+    }
+  </script>
 </body>
 </html>
